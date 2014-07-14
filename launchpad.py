@@ -62,21 +62,21 @@ class Launchpad(QtGui.QDialog):
                 self.ui.actionListWidget.addItem(tuple[0])
         self.ui.actionListWidget.setCurrentRow(0)
         
-    def score_for_string_with_search_term(self, name, search_term, offset):
-        name = name.lower()
+    def score_for_string_with_search_term(self, string_to_search, search_term, offset):
+        string_to_search = string_to_search.lower()
         search_term = search_term.lower()
 
         if (len(search_term) == 0):
             return 0.9
-        if (len(search_term) > len(name)):
+        if (len(search_term) > len(string_to_search)):
             return 0.0
 
         for i in range(len(search_term),0,-1):
             sub_search = search_term[:i]
-            index = name.find(sub_search)
+            index = string_to_search.find(sub_search)
             if (index >= 0):
-                if (index + len(search_term) <= len(name) + offset):
-                    next_string = name[index+len(sub_search):]
+                if (index + len(search_term) <= len(string_to_search) + offset):
+                    next_string = string_to_search[index+len(sub_search):]
                     next_search = None
                     if (i >= len(search_term)):
                         next_search = ""
@@ -84,13 +84,13 @@ class Launchpad(QtGui.QDialog):
                         next_search = search_term[i:]
                     remaining_score = self.score_for_string_with_search_term(next_string, next_search, offset + index)
                     if (remaining_score > 0):
-                        score = len(name) - len(next_string)
+                        score = len(string_to_search) - len(next_string)
                         if (index != 0):
                             j = 0
-                            c = name[index - 1]
+                            c = string_to_search[index - 1]
                             if (c == ' ') or (c == '\t'):
                                 for jj in range((index - 2),0,-1):
-                                    cc = name[jj]
+                                    cc = string_to_search[jj]
                                     if (cc == ' ') or (c == '\t'):
                                         score -= 1
                                     else:
@@ -98,7 +98,7 @@ class Launchpad(QtGui.QDialog):
                             else:
                                 score -= index
                         score += remaining_score * len(next_string)
-                        score = score / len(name)
+                        score = score / len(string_to_search)
                         return score
         return 0
         
