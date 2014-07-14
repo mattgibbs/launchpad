@@ -52,8 +52,8 @@ class Launchpad(QtGui.QDialog):
         selected_item = self.ui.actionListWidget.currentItem()
         if selected_item:
             selected_action_name = str(selected_item.text())
-            self.cursor.execute("SELECT command FROM actions WHERE name=?", (selected_action_name,))
-            print(self.cursor.fetchone())
+            action = self.get_action_with_name(selected_action_name)
+            print(action["command"])
     
     def show_new_action_dialog(self):
         newDialog = ActionDetailDialog(self)
@@ -64,9 +64,7 @@ class Launchpad(QtGui.QDialog):
             self.add_new_action(new_name, new_command)
         
     def show_edit_dialog_for_item(self, item_name):
-        self.cursor.execute("SELECT name, command FROM actions WHERE name=?", (str(item_name),))
-        action_row = self.cursor.fetchone()
-        action = {'name': action_row[0], 'command': action_row[1]}
+        action = self.get_action_with_name(item_name)
         editDialog = ActionDetailDialog(self)
         result = editDialog.show_with_action(action)
         if (result == editDialog.Accepted):
@@ -77,21 +75,6 @@ class Launchpad(QtGui.QDialog):
         elif (result == editDialog.Deleted):
             #Delete the action.
             self.delete_action(item_name)
-            
-    def add_new_action(self, new_name, new_command):
-        self.cursor.execute("INSERT INTO actions (name, command, launchcount) VALUES (?,?,0)", (str(new_name), str(new_command),))
-        self.conn.commit()
-        self.filter_action_list()
-    
-    def update_action(self, action_name, new_name, new_command):
-        self.cursor.execute("UPDATE actions SET name=?,command=? WHERE name=?", (str(new_name),str(new_command),str(action_name),))
-        self.conn.commit()
-        self.filter_action_list()
-        
-    def delete_action(self, action_name):
-        self.cursor.execute("DELETE FROM actions WHERE name=?", (str(action_name),))
-        self.conn.commit()
-        self.filter_action_list()
     
     def filter_action_list(self):
         self.ui.actionListWidget.clear()
@@ -143,6 +126,27 @@ class Launchpad(QtGui.QDialog):
                         score = score / len(string_to_search)
                         return score
         return 0
+        
+    
+    def get_action_with_name(self, action_name):
+        self.cursor.execute("SELECT name, command, launchcount FROM actions WHERE name=?",(str(action_name),))
+        action_row = self.cursor.fetchone()
+        return {"name": str(action_row[0]), "command": str(action_row[1]), "launchcount": action_row[2]}
+        
+    def add_new_action(self, new_name, new_command):
+        self.cursor.execute("INSERT INTO actions (name, command, launchcount) VALUES (?,?,0)", (str(new_name), str(new_command),))
+        self.conn.commit()
+        self.filter_action_list()
+    
+    def update_action(self, action_name, new_name, new_command):
+        self.cursor.execute("UPDATE actions SET name=?,command=? WHERE name=?", (str(new_name),str(new_command),str(action_name),))
+        self.conn.commit()
+        self.filter_action_list()
+        
+    def delete_action(self, action_name):
+        self.cursor.execute("DELETE FROM actions WHERE name=?", (str(action_name),))
+        self.conn.commit()
+        self.filter_action_list()
         
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
