@@ -1,6 +1,7 @@
 import sys
 import sqlite3
 import operator
+import subprocess
 from PyQt4 import QtCore, QtGui
 from launchpad_ui import Ui_launchpadDialog
 from actionDetailDialog import ActionDetailDialog
@@ -53,7 +54,8 @@ class Launchpad(QtGui.QDialog):
         if selected_item:
             selected_action_name = str(selected_item.text())
             action = self.get_action_with_name(selected_action_name)
-            print(action["command"])
+            print("Running command: " + action["command"])
+            process = subprocess.Popen(action["command"], shell=True)
     
     def show_new_action_dialog(self):
         newDialog = ActionDetailDialog(self)
