@@ -91,7 +91,7 @@ class Launchpad(QtGui.QDialog):
                             if (c == ' ') or (c == '\t'):
                                 for jj in range((index - 2),0,-1):
                                     cc = string_to_search[jj]
-                                    if (cc == ' ') or (c == '\t'):
+                                    if (cc == ' ') or (cc == '\t'):
                                         score -= 1
                                     else:
                                         score -= 0.15
