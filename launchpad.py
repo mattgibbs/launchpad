@@ -86,7 +86,6 @@ class Launchpad(QtGui.QDialog):
                     if (remaining_score > 0):
                         score = len(string_to_search) - len(next_string)
                         if (index != 0):
-                            j = 0
                             c = string_to_search[index - 1]
                             if (c == ' ') or (c == '\t'):
                                 for jj in range((index - 2),0,-1):
