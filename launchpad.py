@@ -11,7 +11,7 @@ class Launchpad(QtGui.QDialog):
         self.ui = Ui_launchpadDialog()
         self.ui.setupUi(self)
         self.initialize_sqlite()
-        self.list_all_actions()
+        self.filter_action_list()
         self.connect_slots()
         
     def initialize_sqlite(self):
@@ -39,6 +39,7 @@ class Launchpad(QtGui.QDialog):
         self.ui.actionListWidget.returnKeyPressed.connect(self.launch_selected_action)
         self.ui.actionListWidget.itemEditRequested.connect(self.show_edit_dialog_for_item)
         self.ui.goButton.clicked.connect(self.launch_selected_action)
+        self.ui.addButton.clicked.connect(self.show_new_action_dialog)
     
     def list_all_actions(self):
         for action_name in self.cursor.execute("SELECT name FROM actions"):
@@ -54,20 +55,33 @@ class Launchpad(QtGui.QDialog):
             self.cursor.execute("SELECT command FROM actions WHERE name=?", (selected_action_name,))
             print(self.cursor.fetchone())
     
+    def show_new_action_dialog(self):
+        newDialog = ActionDetailDialog(self)
+        result = newDialog.show_for_new_action()
+        if (result == newDialog.Accepted):
+            new_name = str(newDialog.ui.nameEdit.text())
+            new_command = str(newDialog.ui.commandEdit.text())
+            self.add_new_action(new_name, new_command)
+        
     def show_edit_dialog_for_item(self, item_name):
         self.cursor.execute("SELECT name, command FROM actions WHERE name=?", (str(item_name),))
         action_row = self.cursor.fetchone()
         action = {'name': action_row[0], 'command': action_row[1]}
         editDialog = ActionDetailDialog(self)
         result = editDialog.show_with_action(action)
-        if (editDialog.result() == editDialog.Accepted):
+        if (result == editDialog.Accepted):
             #Save the changes to the action.
             edited_name = str(editDialog.ui.nameEdit.text())
             edited_command = str(editDialog.ui.commandEdit.text())
             self.update_action(item_name,edited_name,edited_command)
-        elif (editDialog.result() == editDialog.Deleted):
+        elif (result == editDialog.Deleted):
             #Delete the action.
             self.delete_action(item_name)
+            
+    def add_new_action(self, new_name, new_command):
+        self.cursor.execute("INSERT INTO actions (name, command, launchcount) VALUES (?,?,0)", (str(new_name), str(new_command),))
+        self.conn.commit()
+        self.filter_action_list()
     
     def update_action(self, action_name, new_name, new_command):
         self.cursor.execute("UPDATE actions SET name=?,command=? WHERE name=?", (str(new_name),str(new_command),str(action_name),))

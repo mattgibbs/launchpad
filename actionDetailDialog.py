@@ -15,6 +15,17 @@ class ActionDetailDialog(QtGui.QDialog):
         self.ui.commandEdit.setText(action["command"])
         return self.exec_()
         
+    def show_for_new_action(self):
+        self.setWindowTitle("Add new action")
+        self.ui.deleteButton.hide()
+        return self.exec_()
+        
     def return_delete_result_code(self):
         self.done(self.Deleted)
+        
+    def accept(self):
+        if ((len(str(self.ui.nameEdit.text())) > 0) and (len(str(self.ui.commandEdit.text())) > 0)):
+            return QtGui.QDialog.accept(self)
+        else:
+            return QtGui.QDialog.reject(self)
         
