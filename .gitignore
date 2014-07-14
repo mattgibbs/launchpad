@@ -1,2 +1,4 @@
 launchpad.db
 *.pyc
+actionListWidget.pyc
+launchpad_ui.pyc
