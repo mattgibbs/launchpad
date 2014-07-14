@@ -2,14 +2,12 @@
 
 # Form implementation generated from reading ui file 'launchpad.ui'
 #
-# Created: Sun Jul 13 02:45:38 2014
+# Created: Mon Jul 14 02:20:49 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-from actionListWidget import ActionListWidget
-from searchLineEdit import SearchLineEdit
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -53,3 +51,5 @@ class Ui_launchpadDialog(object):
         self.addButton.setText(_translate("launchpadDialog", "+", None))
         self.goButton.setText(_translate("launchpadDialog", "Go", None))
 
+from searchLineEdit import SearchLineEdit
+from actionListWidget import ActionListWidget

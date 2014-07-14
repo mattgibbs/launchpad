@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Launchpad</string>
   </property>
-  <widget class="QLineEdit" name="searchLineEdit">
+  <widget class="SearchLineEdit" name="searchLineEdit">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -23,7 +23,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QListWidget" name="actionListWidget">
+  <widget class="ActionListWidget" name="actionListWidget">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -69,6 +69,18 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SearchLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>searchLineEdit</header>
+  </customwidget>
+  <customwidget>
+   <class>ActionListWidget</class>
+   <extends>QListWidget</extends>
+   <header>actionListWidget</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
