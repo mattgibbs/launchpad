@@ -3,6 +3,7 @@ import sqlite3
 import operator
 from PyQt4 import QtCore, QtGui
 from launchpad_ui import Ui_launchpadDialog
+from actionDetailDialog import ActionDetailDialog
 
 class Launchpad(QtGui.QDialog):
     def __init__(self, parent=None):
@@ -36,6 +37,7 @@ class Launchpad(QtGui.QDialog):
         self.ui.searchLineEdit.downKeyPressed.connect(self.ui.actionListWidget.select_next_action)
         self.ui.actionListWidget.itemDoubleClicked.connect(self.launch_selected_action) 
         self.ui.actionListWidget.returnKeyPressed.connect(self.launch_selected_action)
+        self.ui.actionListWidget.itemEditRequested.connect(self.show_edit_dialog_for_item)
         self.ui.goButton.clicked.connect(self.launch_selected_action)
     
     def list_all_actions(self):
@@ -45,14 +47,37 @@ class Launchpad(QtGui.QDialog):
     def return_pressed(self):
         self.launch_selected_action()
     
-
-            
     def launch_selected_action(self):
         selected_item = self.ui.actionListWidget.currentItem()
         if selected_item:
             selected_action_name = str(selected_item.text())
             self.cursor.execute("SELECT command FROM actions WHERE name=?", (selected_action_name,))
             print(self.cursor.fetchone())
+    
+    def show_edit_dialog_for_item(self, item_name):
+        self.cursor.execute("SELECT name, command FROM actions WHERE name=?", (str(item_name),))
+        action_row = self.cursor.fetchone()
+        action = {'name': action_row[0], 'command': action_row[1]}
+        editDialog = ActionDetailDialog(self)
+        result = editDialog.show_with_action(action)
+        if (editDialog.result() == editDialog.Accepted):
+            #Save the changes to the action.
+            edited_name = str(editDialog.ui.nameEdit.text())
+            edited_command = str(editDialog.ui.commandEdit.text())
+            self.update_action(item_name,edited_name,edited_command)
+        elif (editDialog.result() == editDialog.Deleted):
+            #Delete the action.
+            self.delete_action(item_name)
+    
+    def update_action(self, action_name, new_name, new_command):
+        self.cursor.execute("UPDATE actions SET name=?,command=? WHERE name=?", (str(new_name),str(new_command),str(action_name),))
+        self.conn.commit()
+        self.filter_action_list()
+        
+    def delete_action(self, action_name):
+        self.cursor.execute("DELETE FROM actions WHERE name=?", (str(action_name),))
+        self.conn.commit()
+        self.filter_action_list()
     
     def filter_action_list(self):
         self.ui.actionListWidget.clear()
