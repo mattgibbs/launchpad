@@ -62,45 +62,45 @@ class Launchpad(QtGui.QDialog):
                 self.ui.actionListWidget.addItem(tuple[0])
         self.ui.actionListWidget.setCurrentRow(0)
         
-    def score_for_string_with_search_term(self, string_to_search, search_term, offset):
-        string_to_search = string_to_search.lower()
+    def score_for_string_with_search_term(self, name, search_term, offset):
+        name = name.lower()
         search_term = search_term.lower()
-        
-        if len(search_term)==0:
+
+        if (len(search_term) == 0):
             return 0.9
-        
-        if len(search_term) > len(string_to_search):
+        if (len(search_term) > len(name)):
             return 0.0
-            
+
         for i in range(len(search_term),0,-1):
             sub_search = search_term[:i]
-            index = string_to_search.find(sub_search)
-            if index >= 0:
-                if (index + len(search_term) <= len(string_to_search) + offset):
-                    next_string = string_to_search[index + len(sub_search):]
+            index = name.find(sub_search)
+            if (index >= 0):
+                if (index + len(search_term) <= len(name) + offset):
+                    next_string = name[index+len(sub_search):]
                     next_search = None
-                    if i >= len(search_term):
+                    if (i >= len(search_term)):
                         next_search = ""
                     else:
                         next_search = search_term[i:]
                     remaining_score = self.score_for_string_with_search_term(next_string, next_search, offset + index)
-                    if remaining_score > 0:
-                        score = len(string_to_search) - len(next_string)
-                        if index != 0:
-                            c = string_to_search[index - 1]
+                    if (remaining_score > 0):
+                        score = len(name) - len(next_string)
+                        if (index != 0):
+                            j = 0
+                            c = name[index - 1]
                             if (c == ' ') or (c == '\t'):
                                 for jj in range((index - 2),0,-1):
-                                    cc = string_to_search[jj]
-                                    if (cc == ' ') or (cc == '\t'):
+                                    cc = name[jj]
+                                    if (cc == ' ') or (c == '\t'):
                                         score -= 1
                                     else:
                                         score -= 0.15
                             else:
                                 score -= index
                         score += remaining_score * len(next_string)
-                        score = score / len(string_to_search)
+                        score = score / len(name)
                         return score
-            return 0    
+        return 0
         
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
