@@ -32,9 +32,11 @@ class Launchpad(QtGui.QDialog):
         
     def connect_slots(self):
         self.ui.searchLineEdit.textChanged.connect(self.filter_action_list)
+        self.ui.searchLineEdit.upKeyPressed.connect(self.select_previous_action)
+        self.ui.searchLineEdit.downKeyPressed.connect(self.select_next_action)
         self.ui.actionListWidget.itemDoubleClicked.connect(self.launch_selected_action) 
         self.ui.actionListWidget.returnKeyPressed.connect(self.launch_selected_action)
-        self.ui.goButton.clicked.connect(self.launch_selected_action)   
+        self.ui.goButton.clicked.connect(self.launch_selected_action)
     
     def list_all_actions(self):
         for action_name in self.cursor.execute("SELECT name FROM actions"):
@@ -42,7 +44,15 @@ class Launchpad(QtGui.QDialog):
                
     def return_pressed(self):
         self.launch_selected_action()
+    
+    def select_next_action(self):
+        if (self.ui.actionListWidget.currentRow() < (self.ui.actionListWidget.count() - 1)):
+            self.ui.actionListWidget.setCurrentRow(self.ui.actionListWidget.currentRow() + 1)
         
+    def select_previous_action(self):
+        if (self.ui.actionListWidget.currentRow() > 0):
+            self.ui.actionListWidget.setCurrentRow(self.ui.actionListWidget.currentRow() - 1)
+            
     def launch_selected_action(self):
         selected_item = self.ui.actionListWidget.currentItem()
         if selected_item:

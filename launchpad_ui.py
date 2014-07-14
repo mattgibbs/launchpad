@@ -9,6 +9,7 @@
 
 from PyQt4 import QtCore, QtGui
 from actionListWidget import ActionListWidget
+from searchLineEdit import SearchLineEdit
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -28,7 +29,7 @@ class Ui_launchpadDialog(object):
     def setupUi(self, launchpadDialog):
         launchpadDialog.setObjectName(_fromUtf8("launchpadDialog"))
         launchpadDialog.resize(450, 240)
-        self.searchLineEdit = QtGui.QLineEdit(launchpadDialog)
+        self.searchLineEdit = SearchLineEdit(launchpadDialog)
         self.searchLineEdit.setGeometry(QtCore.QRect(30, 30, 341, 21))
         self.searchLineEdit.setObjectName(_fromUtf8("searchLineEdit"))
         self.actionListWidget = ActionListWidget(launchpadDialog)
