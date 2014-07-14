@@ -1,3 +1,4 @@
+import os
 import sys
 import sqlite3
 import operator
@@ -16,7 +17,7 @@ class Launchpad(QtGui.QDialog):
         self.connect_slots()
         
     def initialize_sqlite(self):
-        self.conn = sqlite3.connect('launchpad.db')
+        self.conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)),'launchpad.db'))
         self.cursor = self.conn.cursor()
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='actions'")
         if self.cursor.fetchone() == None:
