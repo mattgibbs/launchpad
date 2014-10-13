@@ -8,4 +8,4 @@ Launchpad lets you make a list of your frequently used programs (or any shell co
 Why use Launchpad instead of some other launcher tool?
 ----------
 
-Launchpad is really bare bones, for better or worse.  It is simple enough that it probably runs well on any unix-based OS that can run Python and Qt (I've tried Linux and OS X).  Unlike Quicksilver, you have full control over what items it might try to launch, but that also means you have to manually enter those items.  To add an item, you specify a name and a shell command to run, and it will add it to a SQLite database.
+Launchpad is really bare bones, for better or worse.  It is simple enough that it probably runs well on any unix-based OS that can run Python and Qt (I've tried Linux and OS X).  Unlike Quicksilver, you have full control over what items it might try to launch, but that also means you have to manually enter those items.  To add an item, you specify a name and a shell command to run, and it will add it to a SQLite database.  If this sounds useful, great!  If this doesn't sound fancy enough, or if it sounds complicated, you might want to try something else.
