@@ -24,12 +24,9 @@ class Launchpad(QtGui.QDialog):
             print("No sqlite database detected, populating a new one.")
             #The actions table doesn't exist!  Go ahead and make one.
             self.cursor.execute("CREATE TABLE actions (name text, command text, launchcount integer)")
-            actions = [('Big Red Unlatch', 'edm -x -noscrl $EDM/misc/giantUnlatchAll.edl', 0),
-                       ('Steering Panel', 'edm -x $EDM/misc/integratedSteeringPanel.edl', 0),
-                       ('Energy Loss Scan', 'xterm -T "FEL E-Loss Scan xterm" -e MatlabGUI E_loss_scan', 0),
-                       ('Strip Tool', 'StripTool', 0),
-                       ('Emittance Scans', 'xterm -T "Emittance GUI xterm" -e MatlabGUI emittance_gui', 0),
-                       ('Beta Matching', 'xterm -T "Matching GUI xterm" -e MatlabGUI matching_gui', 0)]
+            #If you want to add default actions to populate the database, you can do so here.
+            #Add items to the 'actions' list.  Each item is a tuple: (name, shell command, 0)
+            actions = []
             self.cursor.executemany('INSERT INTO actions VALUES (?,?,?)', actions)
             self.conn.commit()
         
@@ -84,7 +81,7 @@ class Launchpad(QtGui.QDialog):
         scores = {}
         for action_row in self.cursor.execute("SELECT name, launchcount FROM actions"):
             scores[action_row[0]] = self.score_for_string_with_search_term(str(action_row[0]), str(self.ui.searchLineEdit.text()), 0)
-        sorted_scores = sorted(scores.iteritems(), key=operator.itemgetter(1))
+        sorted_scores = sorted(scores.items(), key=operator.itemgetter(1))
         sorted_scores.reverse()
         for tuple in sorted_scores:
             if tuple[1] > 0:
