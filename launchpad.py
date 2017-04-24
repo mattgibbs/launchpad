@@ -24,12 +24,7 @@ class Launchpad(QtGui.QDialog):
             print("No sqlite database detected, populating a new one.")
             #The actions table doesn't exist!  Go ahead and make one.
             self.cursor.execute("CREATE TABLE actions (name text, command text, launchcount integer)")
-            actions = [('Big Red Unlatch', 'edm -x -noscrl $EDM/misc/giantUnlatchAll.edl', 0),
-                       ('Steering Panel', 'edm -x $EDM/misc/integratedSteeringPanel.edl', 0),
-                       ('Energy Loss Scan', 'xterm -T "FEL E-Loss Scan xterm" -e MatlabGUI E_loss_scan', 0),
-                       ('Strip Tool', 'StripTool', 0),
-                       ('Emittance Scans', 'xterm -T "Emittance GUI xterm" -e MatlabGUI emittance_gui', 0),
-                       ('Beta Matching', 'xterm -T "Matching GUI xterm" -e MatlabGUI matching_gui', 0)]
+            actions = []
             self.cursor.executemany('INSERT INTO actions VALUES (?,?,?)', actions)
             self.conn.commit()
         
