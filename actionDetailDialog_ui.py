@@ -7,7 +7,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from PyQt import QtCore, QtGui
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -38,7 +38,7 @@ class Ui_actionDetailDialog(object):
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(0, 0, 571, 192))
         self.verticalLayoutWidget.setObjectName(_fromUtf8("verticalLayoutWidget"))
         self.verticalLayout = QtGui.QVBoxLayout(self.verticalLayoutWidget)
-        self.verticalLayout.setMargin(20)
+        self.verticalLayout.setContentsMargins(20,20,20,20)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.nameFieldLabel = QtGui.QLabel(self.verticalLayoutWidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
@@ -76,9 +76,11 @@ class Ui_actionDetailDialog(object):
         self.verticalLayout.addLayout(self.horizontalLayout)
 
         self.retranslateUi(actionDetailDialog)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), actionDetailDialog.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), actionDetailDialog.reject)
-        QtCore.QMetaObject.connectSlotsByName(actionDetailDialog)
+        self.buttonBox.accepted.connect(actionDetailDialog.accept)
+        self.buttonBox.rejected.connect(actionDetailDialog.reject)
+        # QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), actionDetailDialog.accept)
+        # QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), actionDetailDialog.reject)
+        # QtCore.QMetaObject.connectSlotsByName(actionDetailDialog)
 
     def retranslateUi(self, actionDetailDialog):
         actionDetailDialog.setWindowTitle(_translate("actionDetailDialog", "Dialog", None))

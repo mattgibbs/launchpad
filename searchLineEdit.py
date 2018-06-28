@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+from PyQt import QtCore, QtGui
 
 class SearchLineEdit(QtGui.QLineEdit):
     upKeyPressed = QtCore.pyqtSignal()

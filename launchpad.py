@@ -3,7 +3,7 @@ import sys
 import sqlite3
 import operator
 import subprocess
-from .PyQt import QtCore, QtGui
+from PyQt import QtCore, QtGui
 from launchpad_ui import Ui_launchpadDialog
 from actionDetailDialog import ActionDetailDialog
 

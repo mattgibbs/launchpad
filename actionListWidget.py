@@ -1,5 +1,5 @@
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import pyqtSlot
+from PyQt import QtCore, QtGui
+from PyQt.QtCore import pyqtSlot
 
 class ActionListWidget(QtGui.QListWidget):
     returnKeyPressed = QtCore.pyqtSignal()

@@ -1,3 +1,4 @@
+import sys
 QT_LIB = None
 lib_order = ['PyQt5', 'PyQt4']
 for lib in lib_order:

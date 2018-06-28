@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+from PyQt import QtCore, QtGui
 from actionDetailDialog_ui import Ui_actionDetailDialog
 
 class ActionDetailDialog(QtGui.QDialog):
