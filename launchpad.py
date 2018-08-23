@@ -12,6 +12,8 @@ class Launchpad(QtGui.QDialog):
         QtGui.QDialog.__init__(self, parent)
         self.ui = Ui_launchpadDialog()
         self.ui.setupUi(self)
+        self.conn = None
+        self.cursor = None
         self.initialize_sqlite()
         self.filter_action_list()
         self.connect_slots()
