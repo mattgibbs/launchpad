@@ -3,17 +3,14 @@ import sys
 import sqlite3
 import operator
 import subprocess
-from PyQt import QtCore, QtGui
-from launchpad_ui import Ui_launchpadDialog
+from PyQt5 import QtCore, QtWidgets, uic
 from actionDetailDialog import ActionDetailDialog
+import wmctrl
 
-class Launchpad(QtGui.QDialog):
+class Launchpad(QtWidgets.QDialog):
     def __init__(self, parent=None):
-        QtGui.QDialog.__init__(self, parent)
-        self.ui = Ui_launchpadDialog()
-        self.ui.setupUi(self)
-        self.conn = None
-        self.cursor = None
+        QtWidgets.QDialog.__init__(self, parent)
+        self.ui = uic.loadUi(os.path.join(os.path.dirname(os.path.abspath(__file__)), "launchpad.ui"), self)
         self.initialize_sqlite()
         self.filter_action_list()
         self.connect_slots()
@@ -25,13 +22,17 @@ class Launchpad(QtGui.QDialog):
         if self.cursor.fetchone() == None:
             print("No sqlite database detected, populating a new one.")
             #The actions table doesn't exist!  Go ahead and make one.
-            self.cursor.execute("CREATE TABLE actions (name text, command text, launchcount integer)")
-            #If you want to add default actions to populate the database, you can do so here.
-            #Add items to the 'actions' list.  Each item is a tuple: (name, shell command, 0)
-            actions = []
-            self.cursor.executemany('INSERT INTO actions VALUES (?,?,?)', actions)
+            self.cursor.execute("CREATE TABLE actions (name text, command text, launchcount integer, window_title_regex text)")
+            actions = [('Big Red Unlatch', 'edm -x -noscrl $EDM/misc/giantUnlatchAll.edl', 0, 'Big Red Unlatch'),
+                       ('Steering Panel', 'edm -x $EDM/misc/integratedSteeringPanel.edl', 0, 'Integrated Steering Panel'),
+                       ('Energy Loss Scan', 'xterm -T "FEL E-Loss Scan xterm" -e MatlabGUI E_loss_scan', 0, 'E_loss_scan'),
+                       ('Strip Tool', 'StripTool', 0, '.+\.stp Graph'),
+                       ('Emittance Scans', 'xterm -T "Emittance GUI xterm" -e MatlabGUI emittance_gui', 0, 'Emittance Application - /[.+/]'),
+                       ('Beta Matching', 'xterm -T "Matching GUI xterm" -e MatlabGUI matching_gui', 0, 'matching_gui')]
+            self.cursor.executemany('INSERT INTO actions VALUES (?,?,?,?)', actions)
             self.conn.commit()
-        
+        self.upgrade_db()
+    
     def connect_slots(self):
         self.ui.searchLineEdit.textChanged.connect(self.filter_action_list)
         self.ui.searchLineEdit.upKeyPressed.connect(self.ui.actionListWidget.select_previous_action)
@@ -54,8 +55,24 @@ class Launchpad(QtGui.QDialog):
         if selected_item:
             selected_action_name = str(selected_item.text())
             action = self.get_action_with_name(selected_action_name)
-            print("Running command: " + action["command"])
+            #Check if there is an open window for this action, if so, just activate it.
+            if action["window_title_regex"] is not None and len(action["window_title_regex"]) > 0:
+                open_windows = wmctrl.Window.by_name(action["window_title_regex"].encode('utf-8'))
+                if len(open_windows) > 0:
+                    # First sort the windows in a way that puts windows on your current desktop on the top of the list.
+            # This is a pretty slow way to sort but it should be fine unless we have hundreds of windows with the same name.
+                    current_desktop = wmctrl.current_desktop()
+                    open_windows.sort(key=lambda window: abs(current_desktop - window.desktop))
+                    # We just pick the first window in the list if there are multiple windows.  This is somewhat random.
+                    open_windows[0].activate()
+                    self.update_launch_count(action["name"], action["launchcount"]+1)
+                    QtWidgets.QApplication.instance().exit()
+                    return
+            #print("Running command: " + action["command"])
             process = subprocess.Popen(action["command"], shell=True)
+            self.update_launch_count(action["name"], action["launchcount"]+1)
+        self.ui.searchLineEdit.setText("")
+        QtWidgets.QApplication.instance().exit()
     
     def show_new_action_dialog(self):
         newDialog = ActionDetailDialog(self)
@@ -63,7 +80,8 @@ class Launchpad(QtGui.QDialog):
         if (result == newDialog.Accepted):
             new_name = str(newDialog.ui.nameEdit.text())
             new_command = str(newDialog.ui.commandEdit.text())
-            self.add_new_action(new_name, new_command)
+            new_regex = str(newDialog.ui.regexEdit.text())
+            self.add_new_action(new_name, new_command, new_regex)
         
     def show_edit_dialog_for_item(self, item_name):
         action = self.get_action_with_name(item_name)
@@ -73,7 +91,8 @@ class Launchpad(QtGui.QDialog):
             #Save the changes to the action.
             edited_name = str(editDialog.ui.nameEdit.text())
             edited_command = str(editDialog.ui.commandEdit.text())
-            self.update_action(item_name,edited_name,edited_command)
+            edited_regex = str(editDialog.ui.regexEdit.text())
+            self.update_action(item_name,edited_name,edited_command,edited_regex)
         elif (result == editDialog.Deleted):
             #Delete the action.
             self.delete_action(item_name)
@@ -128,30 +147,46 @@ class Launchpad(QtGui.QDialog):
                         score = score / len(string_to_search)
                         return score
         return 0
-        
+    
+    def activateWindow(self):
+    #Sadly, wmctrl is the only way to absolutely, positively give your window focus and bring it to the front.
+        subprocess.Popen("wmctrl -x -R Launchpad", shell=True)
+        super(Launchpad, self).activateWindow()
     
     def get_action_with_name(self, action_name):
-        self.cursor.execute("SELECT name, command, launchcount FROM actions WHERE name=?",(str(action_name),))
+        self.cursor.execute("SELECT name, command, launchcount, window_title_regex FROM actions WHERE name=?",(str(action_name),))
         action_row = self.cursor.fetchone()
-        return {"name": str(action_row[0]), "command": str(action_row[1]), "launchcount": action_row[2]}
+        return {"name": str(action_row[0]), "command": str(action_row[1]), "launchcount": action_row[2], "window_title_regex": action_row[3]}
         
-    def add_new_action(self, new_name, new_command):
-        self.cursor.execute("INSERT INTO actions (name, command, launchcount) VALUES (?,?,0)", (str(new_name), str(new_command),))
+    def add_new_action(self, new_name, new_command, new_window_title_regex=''):
+        self.cursor.execute("INSERT INTO actions (name, command, launchcount, window_title_regex) VALUES (?,?,0,?)", (str(new_name), str(new_command), str(new_window_title_regex),))
         self.conn.commit()
         self.filter_action_list()
     
-    def update_action(self, action_name, new_name, new_command):
-        self.cursor.execute("UPDATE actions SET name=?,command=? WHERE name=?", (str(new_name),str(new_command),str(action_name),))
+    def update_action(self, action_name, new_name, new_command, new_window_title_regex=''):
+        self.cursor.execute("UPDATE actions SET name=?,command=?,window_title_regex=? WHERE name=?", (str(new_name),str(new_command),str(new_window_title_regex), str(action_name),))
         self.conn.commit()
         self.filter_action_list()
-        
+    
+    def update_launch_count(self, action_name, new_launch_count):
+        self.cursor.execute("UPDATE actions SET launchcount=? WHERE name=?", (str(new_launch_count), str(action_name),))
+        self.conn.commit()
+    
     def delete_action(self, action_name):
         self.cursor.execute("DELETE FROM actions WHERE name=?", (str(action_name),))
         self.conn.commit()
         self.filter_action_list()
         
+    def upgrade_db(self):
+        self.cursor.execute("SELECT * FROM actions")
+        col_names = [desc[0] for desc in self.cursor.description]
+        if 'window_title_regex' not in col_names:
+            self.cursor.execute("ALTER TABLE actions ADD COLUMN 'window_title_regex' 'text'")
+            self.conn.commit()
+
 if __name__ == "__main__":
-    app = QtGui.QApplication(sys.argv)
-    myapp = Launchpad()
-    myapp.show()
+    unique_id = "launchpadapp"
+    app = QtWidgets.QApplication(sys.argv)
+    window = Launchpad()
+    window.show()
     sys.exit(app.exec_())
