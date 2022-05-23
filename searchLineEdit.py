@@ -1,10 +1,10 @@
-from PyQt import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 
-class SearchLineEdit(QtGui.QLineEdit):
+class SearchLineEdit(QtWidgets.QLineEdit):
     upKeyPressed = QtCore.pyqtSignal()
     downKeyPressed = QtCore.pyqtSignal()
     def __init__(self, *args):
-        QtGui.QLineEdit.__init__(self, *args)
+        QtWidgets.QLineEdit.__init__(self, *args)
     
     def keyPressEvent(self, key_event):
         if (key_event.key() == QtCore.Qt.Key_Up):
@@ -12,4 +12,4 @@ class SearchLineEdit(QtGui.QLineEdit):
         elif(key_event.key() == QtCore.Qt.Key_Down):
             self.downKeyPressed.emit()
         else:
-            return QtGui.QLineEdit.keyPressEvent(self, key_event)
+            return QtWidgets.QLineEdit.keyPressEvent(self, key_event)
