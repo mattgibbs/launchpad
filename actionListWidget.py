@@ -1,16 +1,16 @@
-from PyQt import QtCore, QtGui
-from PyQt.QtCore import pyqtSlot
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import pyqtSlot
 
-class ActionListWidget(QtGui.QListWidget):
+class ActionListWidget(QtWidgets.QListWidget):
     returnKeyPressed = QtCore.pyqtSignal()
     itemEditRequested = QtCore.pyqtSignal(str)
     def __init__(self, *args):
-        QtGui.QListWidget.__init__(self, *args)
+        QtWidgets.QListWidget.__init__(self, *args)
     def keyPressEvent(self, key_event):
         if ((key_event.key() == QtCore.Qt.Key_Return) or (key_event.key() == QtCore.Qt.Key_Enter)):
             self.returnKeyPressed.emit()
         else:
-            return QtGui.QListWidget.keyPressEvent(self, key_event)
+            return QtWidgets.QListWidget.keyPressEvent(self, key_event)
             
     def contextMenuEvent(self, context_menu_event):
         self.list_item_right_clicked(context_menu_event.globalPos())
@@ -24,8 +24,10 @@ class ActionListWidget(QtGui.QListWidget):
             self.setCurrentRow(self.currentRow() - 1)
             
     def list_item_right_clicked(self, pos):
-        itemMenu = QtGui.QMenu()
-        menu_item = itemMenu.addAction("Edit...", self, QtCore.SLOT("edit_item()"))
+        itemMenu = QtWidgets.QMenu()
+
+        menu_item = itemMenu.addAction("Edit...")
+        menu_item.triggered.connect(self.edit_item)
         itemMenu.exec_(pos)
     
     @pyqtSlot()

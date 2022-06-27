@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>570</width>
-    <height>180</height>
+    <height>240</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -31,20 +31,11 @@
      <x>0</x>
      <y>0</y>
      <width>571</width>
-     <height>192</height>
+     <height>249</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="leftMargin">
-     <number>20</number>
-    </property>
-    <property name="topMargin">
-     <number>20</number>
-    </property>
-    <property name="rightMargin">
-     <number>20</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>20</number>
     </property>
     <item>
@@ -78,6 +69,16 @@
     </item>
     <item>
      <widget class="QLineEdit" name="commandEdit"/>
+    </item>
+    <item>
+     <widget class="QLabel" name="regexLabel">
+      <property name="text">
+       <string>Window Title (Optional, for opening existing windows.  Can include regex.):</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="regexEdit"/>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
